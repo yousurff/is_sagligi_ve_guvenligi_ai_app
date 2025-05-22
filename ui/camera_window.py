@@ -1,4 +1,3 @@
-# ui/camera_window.py
 import cv2
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtWidgets import (
@@ -10,12 +9,10 @@ from models.object_detector import detect_objects
 class CameraWindow(QWidget):
     def __init__(self):
         super().__init__()
-        # enforce a minimum window size so the video feed isn’t tiny
         self.setMinimumSize(800, 500)
         self.setWindowTitle("Live Camera Feed")
         self.cap = None
 
-        # --- UI ---
         self.video_label = QLabel(alignment=Qt.AlignmentFlag.AlignCenter)
         self.video_label.setText("Starting camera…")
         self.stop_btn = QPushButton("Stop Camera")
@@ -25,13 +22,11 @@ class CameraWindow(QWidget):
         layout.addWidget(self.video_label, stretch=1)
         layout.addWidget(self.stop_btn)
 
-        # --- Timer to pull frames every 30ms ---
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_frame)
         self.start_camera()
 
     def start_camera(self):
-        # Open default webcam (index 0). Change to 1,2,… for other devices.
         self.cap = cv2.VideoCapture(0)
         if not self.cap.isOpened():
             QMessageBox.critical(self, "Error", "Could not open camera")
@@ -43,9 +38,7 @@ class CameraWindow(QWidget):
         ret, frame = self.cap.read()
         if not ret:
             return
-        # run your detection on the BGR frame
         annotated = detect_objects(frame)
-        # convert and display
         pix = cv_to_qpixmap(annotated)
         self.video_label.setPixmap(
             pix.scaled(
@@ -56,7 +49,6 @@ class CameraWindow(QWidget):
         )
 
     def closeEvent(self, event):
-        # cleanup on window close
         if self.timer.isActive():
             self.timer.stop()
         if self.cap and self.cap.isOpened():
