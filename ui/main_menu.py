@@ -1,4 +1,3 @@
-# ui/main_menu.py
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QFileDialog
 from PyQt6.QtCore import Qt
 from utils.image_utils import cv_to_qpixmap
@@ -13,7 +12,6 @@ class DropLabel(QLabel):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
-        # Accept only file URLs
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
         else:
@@ -24,8 +22,6 @@ class DropLabel(QLabel):
         if not urls:
             return
         path = urls[0].toLocalFile()
-        # call the parent widget's process()
-        # (we assume parent is MainMenuWindow)
         self.parent().process(path)
         event.acceptProposedAction()
 
@@ -38,7 +34,6 @@ class MainMenuWindow(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
 
-        # replace your plain QLabel with our DropLabel
         self.drop_area = DropLabel("Drag & drop image here",
                                   alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.drop_area, stretch=1)
@@ -59,15 +54,12 @@ class MainMenuWindow(QWidget):
             self.process(path)
 
     def open_camera(self):
-        # ... your camera‐window popup logic ...
         from ui.camera_window import CameraWindow
         win = CameraWindow()
         win.setParent(self, Qt.WindowType.Window)
         win.show()
 
     def process(self, path_or_frame):
-        # If path_or_frame is a string path, detect_objects will read it;
-        # if it's a cv2 frame, detect_objects will accept it too.
         out = detect_objects(path_or_frame)
         pix = cv_to_qpixmap(out)
         self.drop_area.setPixmap(
